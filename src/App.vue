@@ -2,7 +2,7 @@
  * @Author: zhang
  * @Date: 2022-06-02 16:49:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-06-22 13:39:46
+ * @LastEditTime: 2022-06-23 10:19:03
  * @Descripttion: 
 -->
 <template>
@@ -27,7 +27,7 @@ export default {
   setup() {
     let audio = ref(null);
     const store = new useStore();
-
+    store.state.isPlay = false;
     nextTick(() => {
       audio.value.addEventListener(
         "ended",
@@ -38,7 +38,8 @@ export default {
         false
       );
     });
-    // 
+    //
+    //
     // store.commit("ChangeIsPlay");
     watch(
       () => store.state.isPlay,
@@ -46,11 +47,12 @@ export default {
         nextTick(() => {
           if (newValue) {
             audio.value.play();
-            // console.log(audio.value.play());
             let player = audio.value.play();
             player.catch(async (err) => {
-              store.state.isPlay = false;
-              store.dispatch("nex");
+              setTimeout(() => {
+                store.state.isPlay = false;
+                store.dispatch("nex");
+              }, 1000);
             });
           } else {
             audio.value.pause();

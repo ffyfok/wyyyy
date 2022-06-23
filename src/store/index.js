@@ -2,7 +2,7 @@
  * @Author: zhang
  * @Date: 2022-06-02 16:49:48
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-06-22 15:03:47
+ * @LastEditTime: 2022-06-23 11:24:19
  * @Descripttion: 
  */
 import VuexPersistence from 'vuex-persist'
@@ -54,7 +54,7 @@ export default createStore({
     // 添加搜索历史
     AddHistorySearch(state, val) {
       state.historySearch.unshift(val)
-      if (state.historySearch.length > 5) {
+      if (state.historySearch.length > 10) {
         state.historySearch.pop()
       }
     }

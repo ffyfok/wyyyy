@@ -2,7 +2,7 @@
  * @Author: zhang
  * @Date: 2022-06-08 09:49:58
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-06-22 14:56:45
+ * @LastEditTime: 2022-06-23 11:23:13
  * @Descripttion: 
 -->
 <template>
@@ -40,6 +40,18 @@
         {{ item }}
       </div>
     </div>
+    <!-- 搜索提示 -->
+    <div class="search-tip" v-if="searchSongs.length">
+      <div
+        class="serach-tip-lis"
+        v-for="(item, index) in searchSongs"
+        :key="index"
+        @click="onSearch(item)"
+      >
+        <div class="ico icon-sousuo iconfont"></div>
+        <span>{{ item }}</span>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -48,6 +60,7 @@ import { reactive, ref } from "@vue/reactivity";
 import { useRouter } from "vue-router";
 import { useStore } from "vuex";
 import { Toast } from "vant";
+import { searchSuggest } from "../../utils/search";
 export default {
   components: {
     [Toast.name]: Toast,
@@ -55,7 +68,10 @@ export default {
   setup() {
     const router = useRouter();
     const store = new useStore();
+    // 搜索历史
     let { historySearch } = store.state;
+    // 搜索推荐歌曲
+    let searchSongs = ref([]);
     function backs() {
       router.go(-1);
     }
@@ -67,6 +83,7 @@ export default {
     const onSearch = (val) => {
       if (val.trim().length > 0) {
         store.commit("AddHistorySearch", val);
+        searchSongs.value.length = 0;
       } else {
         Toast.fail("请输入文字信息！");
       }
@@ -74,8 +91,15 @@ export default {
     };
     /* 值改变 */
     const changeValue = (val) => {
-      if (val.trim().length > 0) {
+      let value = val.trim();
+      if (value.length > 0) {
         data.show = true;
+        searchSuggest({ keywords: value }).then((res) => {
+          // console.log(res.data.result);
+          res.data.result.songs.forEach((item) => {
+            searchSongs.value.push(item.name);
+          });
+        });
       } else {
         data.show = false;
       }
@@ -84,6 +108,7 @@ export default {
     const clearValue = () => {
       data.show = false;
       value.value = "";
+      searchSongs.value.length = 0;
     };
     return {
       backs,
@@ -93,6 +118,7 @@ export default {
       data,
       clearValue,
       historySearch,
+      searchSongs,
     };
   },
 };
@@ -102,6 +128,7 @@ export default {
 .search-box {
   width: 100%;
   height: 100%;
+  position: relative;
   .home-top {
     width: 100%;
     height: 1.2rem;
@@ -153,6 +180,34 @@ export default {
         border-radius: 0.4rem;
         background: #eee;
         margin-left: 0.2rem;
+      }
+    }
+  }
+  .search-tip {
+    width: 100%;
+    position: absolute;
+    top: 1.1rem;
+    left: 0px;
+    height: 300px;
+    background: #fff;
+    .serach-tip-lis {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      height: 0.8rem;
+      .ico {
+        width: 0.8rem;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      span {
+        flex: 1;
+        height: 100%;
+        border-bottom: 1px solid #ddd;
+        display: flex;
+        align-items: center;
       }
     }
   }
